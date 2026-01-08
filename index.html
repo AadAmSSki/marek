@@ -5,7 +5,6 @@
 <title>Czepielowickie Pijaki Witają</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#00d4ff">
 <style>
 body { font-family: Arial,sans-serif; background:#0b0f12; color:#fff; margin:0; padding:0; display:flex; flex-direction:column; align-items:center; background-size:cover; background-position:center; }
 h1 { margin:12px 0; font-size:24px; text-align:center; color:#0ff; text-shadow:0 0 12px #0ff; }
@@ -88,7 +87,6 @@ input[type=text]{ padding:6px 10px; border-radius:6px; border:none; margin-right
     </ul>
   </div>
 </div>
-
 <!-- Sklep -->
 <div id="sklep" class="section hidden">
   <h3>🛒 Sklep</h3>
@@ -104,6 +102,7 @@ input[type=text]{ padding:6px 10px; border-radius:6px; border:none; margin-right
       </div>
     </div>
   </div>
+
   <div class="shop-item">
     <img src="https://i.imgur.com/MUny4NP.png" alt="Dom Figasa">
     <div>
@@ -211,7 +210,6 @@ function pokazSekcje(n){
   if(n==="ekwipunek") renderEkwipunek();
   if(n==="dostosuj") renderDostosuj();
 }
-
 // ===================== Skrzynki =====================
 function pokazSkrzynki(){
   document.getElementById("skrzynkiSelection").classList.remove("hidden");
@@ -226,20 +224,20 @@ function wybierzSkrzynie(skrzynia){
   document.getElementById("winner").innerHTML = "🎲 Kliknij, aby wylosować";
   document.getElementById("loading").style.display = "none";
 }
+
 // ===================== Przedmioty =====================
 const postacie = [
-  {imie:"Zygryj",obraz:"https://i.imgur.com/vqiIFOd.jpeg",szansa:20,typ:"zwykle"},
-  {imie:"Bartek Figas",obraz:"https://i.imgur.com/ni7vlaG.jpeg",szansa:10,typ:"zadkie"},
-  {imie:"Zorro",obraz:"https://i.imgur.com/sgJGXfv.jpeg",szansa:10,typ:"zwykle"},
-  {imie:"Krystian",obraz:"https://i.imgur.com/zZLDqBR.jpeg",szansa:15,typ:"zwykle"},
-  {imie:"Bajbus",obraz:"https://i.imgur.com/BVVo8Ss.jpeg",szansa:10,typ:"zwykle"},
-  {imie:"Aśka Figas",obraz:"https://i.imgur.com/XABuJBq.jpeg",szansa:5,typ:"zadkie"},
-  {imie:"Babka Wampir",obraz:"https://i.imgur.com/c1jxjcS.jpeg",szansa:5,typ:"mega"},
-  {imie:"Mocher",obraz:"https://i.imgur.com/J3kheKw.jpeg",szansa:5,typ:"mega"},
-  {imie:"Mellstroy",obraz:"https://i.imgur.com/u1b7Mug.jpeg",szansa:1,typ:"ultra"},
-  {imie:"Palący się menel",obraz:"https://i.imgur.com/W6Kbj20.png",szansa:5,typ:"zadkie"} // NOWA POSTAĆ
+  {imie:"Zygryj", obraz:"https://i.imgur.com/vqiIFOd.jpeg", szansa:15, typ:"zwykle"},
+  {imie:"Zorro", obraz:"https://i.imgur.com/sgJGXfv.jpeg", szansa:15, typ:"zwykle"},
+  {imie:"Krystian", obraz:"https://i.imgur.com/zZLDqBR.jpeg", szansa:10, typ:"zwykle"},
+  {imie:"Bajbus", obraz:"https://i.imgur.com/BVVo8Ss.jpeg", szansa:8, typ:"zwykle"},
+  {imie:"Bartek Figas", obraz:"https://i.imgur.com/ni7vlaG.jpeg", szansa:15, typ:"zadkie"},
+  {imie:"Aśka Figas", obraz:"https://i.imgur.com/XABuJBq.jpeg", szansa:5, typ:"zadkie"},
+  {imie:"Palący się menel", obraz:"https://i.imgur.com/W6Kbj20.png", szansa:5, typ:"zadkie"},
+  {imie:"Babka Wampir", obraz:"https://i.imgur.com/c1jxjcS.jpeg", szansa:5, typ:"mega"},
+  {imie:"Mocher", obraz:"https://i.imgur.com/J3kheKw.jpeg", szansa:5, typ:"mega"},
+  {imie:"Mellstroy", obraz:"https://i.imgur.com/u1b7Mug.jpeg", szansa:1, typ:"ultra"}
 ];
-
 const szlugi = [
   {imie:"Marlboro Gold",obraz:"https://i.imgur.com/gn8NS3q.jpeg",szansa:10,typ:"zadkie"},
   {imie:"Camel",obraz:"https://i.imgur.com/iYjQF8M.jpeg",szansa:15,typ:"zadkie"},
@@ -300,18 +298,112 @@ function losuj(){
   },900);
 }
 
-// ===================== Rejestracja service workera =====================
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function() {
-    navigator.serviceWorker.register('sw.js').then(function(registration) {
-      console.log('ServiceWorker zarejestrowany: ', registration.scope);
-    }, function(err) {
-      console.log('Błąd rejestracji ServiceWorker: ', err);
-    });
+// ===================== Ekwipunek =====================
+function ustawKategorie(kat){
+  aktywnaKategoria=kat;
+  document.getElementById("tabPostacie").classList.toggle("active",kat==="postacie");
+  document.getElementById("tabSzlugi").classList.toggle("active",kat==="szlugi");
+  document.getElementById("tabWyglady").classList.toggle("active",kat==="wyglady");
+  aktywnaSubTab="zwykle"; currentPage=1;
+  document.querySelectorAll("#subTabs .ekwipunek-tab").forEach(t=>t.classList.remove("active"));
+  document.querySelector(`#subTabs .ekwipunek-tab[onclick="pokazSubTab('zwykle')"]`)?.classList.add("active");
+  renderEkwipunek();
+}
+
+function pokazSubTab(sub){ aktywnaSubTab=sub; currentPage=1; document.querySelectorAll("#subTabs .ekwipunek-tab").forEach(t=>t.classList.remove("active")); for(const t of document.querySelectorAll("#subTabs .ekwipunek-tab")){ if(t.getAttribute("onclick") && t.getAttribute("onclick").includes(sub)) t.classList.add("active"); } renderEkwipunek(); }
+
+function renderEkwipunek(){
+  const kontener=document.getElementById("ekwipunekItems"); kontener.innerHTML="";
+  let lista=[];
+  if(aktywnaKategoria==="postacie") lista=ekwipunekPostacie;
+  else if(aktywnaKategoria==="szlugi") lista=ekwipunekSzlugi;
+  else if(aktywnaKategoria==="wyglady") lista=ekwipunekWyglady;
+
+  const filtered=lista.filter(it=>it.typ===aktywnaSubTab || it.typ==="kupione");
+  const totalPages=Math.max(1,Math.ceil(filtered.length/itemsPerPage));
+  if(currentPage>totalPages) currentPage=totalPages;
+  const start=(currentPage-1)*itemsPerPage;
+  const pageItems=filtered.slice(start,start+itemsPerPage);
+
+  pageItems.forEach(item=>{
+    const div=document.createElement("div");
+    const img=document.createElement("img"); img.src=item.obraz; img.alt=item.imie; div.appendChild(img);
+
+    if(aktywnaKategoria!=="wyglady"){
+      const btn=document.createElement("button"); btn.textContent="Sprzedaj"; btn.className="btn";
+      btn.style.position="absolute"; btn.style.bottom="0"; btn.style.left="0"; btn.style.fontSize="12px"; btn.style.padding="2px 4px";
+      btn.onclick=()=>{ punkty=Math.min(MAX_POINTS,punkty+250); updatePunkty(); const arr=aktywnaKategoria==="postacie"?ekwipunekPostacie:ekwipunekSzlugi; const idx=arr.indexOf(item); if(idx!==-1) arr.splice(idx,1); localStorage.setItem(aktywnaKategoria==="postacie"?"ekwipunekPostacie":"ekwipunekSzlugi",JSON.stringify(arr)); renderEkwipunek(); };
+      div.appendChild(btn);
+    } else {
+      const btn=document.createElement("button"); btn.textContent="Ustaw tło"; btn.className="btn";
+      btn.style.position="absolute"; btn.style.bottom="0"; btn.style.left="0"; btn.style.fontSize="12px"; btn.style.padding="2px 4px";
+      btn.onclick=()=>{ document.body.style.backgroundImage=`url(${item.obraz})`; localStorage.setItem("background",item.obraz); };
+      div.appendChild(btn);
+    }
+
+    kontener.appendChild(div);
+  });
+
+  const pc=document.getElementById("pageControls"); pc.innerHTML="";
+  for(let i=1;i<=totalPages;i++){ const b=document.createElement("button"); b.textContent=i; if(i===currentPage) b.style.fontWeight="800"; b.onclick=()=>{ currentPage=i; renderEkwipunek(); }; pc.appendChild(b); }
+}
+
+// ===================== Profil =====================
+function zapiszProfil(){ const name=document.getElementById("inputName").value.trim(); if(name){ profil=name; localStorage.setItem("profil",profil); updateProfil(); alert("Zapisano profil: "+profil); } }
+
+// ===================== Zakupy =====================
+function kupWyglad(nazwa,obraz,cena){ if(punkty>=cena){ punkty=Math.min(MAX_POINTS,punkty-cena); updatePunkty(); ekwipunekWyglady.unshift({imie:nazwa,obraz:obraz,typ:"kupione",kategoria:"wyglady"}); localStorage.setItem("ekwipunekWyglady",JSON.stringify(ekwipunekWyglady)); renderEkwipunek(); alert(`Kupiłeś wygląd: ${nazwa}`); } else alert("Za mało punktów!"); }
+
+// ===================== Rangi =====================
+function updateRangi(){
+  let ranga="", lvl=1;
+  if(punkty<5000){ ranga="Pijaczek"; lvl=Math.floor(punkty/1000)+1; }
+  else if(punkty<20000){ ranga="Dresiarz"; lvl=Math.floor((punkty-5000)/3000)+1; }
+  else if(punkty<50000){ ranga="Figas"; lvl=Math.floor((punkty-20000)/10000)+1; }
+  else if(punkty<100000){ ranga="Gangster"; lvl=Math.floor((punkty-50000)/25000)+1; }
+  else { ranga="Król Czepielowic"; lvl=Math.floor((punkty-9999999)/50000)+1; }
+  document.getElementById("rangaText").textContent = ranga + " Lvl " + lvl;
+}
+updateRangi();
+
+// ===================== Wygląd z lokalStorage =====================
+const bg=localStorage.getItem("background"); if(bg) document.body.style.backgroundImage=`url(${bg})`;
+
+// ===================== Dopasuj wygląd =====================
+function renderDostosuj(){
+  const kontener=document.getElementById("dostosujLista");
+  kontener.innerHTML="";
+  ekwipunekWyglady.forEach(item=>{
+    const btn=document.createElement("button");
+    btn.className="btn";
+    btn.textContent=item.imie;
+    btn.style.margin="4px";
+    btn.onclick=()=>{ document.body.style.backgroundImage=`url(${item.obraz})`; localStorage.setItem("background",item.obraz); };
+    kontener.appendChild(btn);
   });
 }
 
-// ===================== Koniec HTML =====================
+// ===================== Codzienna nagroda =====================
+function dajNagrode(){
+  const today = new Date().setHours(0,0,0,0);
+  if(ostatniaNagroda < today){
+    const nagroda = 1000;
+    punkty = Math.min(MAX_POINTS, punkty + nagroda);
+    updatePunkty();
+    ostatniaNagroda = today;
+    localStorage.setItem("ostatniaNagroda", ostatniaNagroda);
+    alert(`Otrzymujesz codzienną nagrodę: ${nagroda} pkt`);
+  }
+}
+dajNagrode();
+
+// ===================== Rejestracja Service Workera =====================
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js').then(reg=>console.log("SW zarejestrowany")).catch(err=>console.log("Błąd SW", err));
+  });
+}
+
 </script>
 </body>
 </html>
