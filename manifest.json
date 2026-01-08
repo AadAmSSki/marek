@@ -1,0 +1,20 @@
+{
+  "name": "Czepielowickie Pijaki",
+  "short_name": "Pijaki",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#0b0f12",
+  "theme_color": "#00d4ff",
+  "icons": [
+    {
+      "src": "https://i.imgur.com/TotBOQy.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://i.imgur.com/TotBOQy.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

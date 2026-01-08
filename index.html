@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<title>Czepielowickie Pijaki Witają</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#00d4ff">
+<style>
+body { font-family: Arial,sans-serif; background:#0b0f12; color:#fff; margin:0; padding:0; display:flex; flex-direction:column; align-items:center; background-size:cover; background-position:center; }
+h1 { margin:12px 0; font-size:24px; text-align:center; color:#0ff; text-shadow:0 0 12px #0ff; }
+#hud { width:95%; max-width:550px; background: rgba(255,255,255,0.05); padding:10px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; gap:6px; flex-wrap:wrap; }
+#punkty,#godzina,#profilName { font-weight:700; }
+.btn { padding:8px 12px; border:none; border-radius:8px; background:linear-gradient(90deg,#00d4ff,#8be9ff); color:#012; font-weight:700; cursor:pointer; transition:0.2s; }
+.btn:hover{ transform:scale(1.05); }
+.section { width:95%; max-width:550px; background: rgba(255,255,255,0.04); border-radius:12px; padding:12px; margin-top:12px; }
+.hidden{ display:none; }
+#crate { width:100%; height:260px; border-radius:12px; background:linear-gradient(#14181a,#0f1315); border:2px solid rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:center; flex-direction:column; position:relative; }
+#winner img{ width:120px; height:120px; border-radius:12px; object-fit:cover; border:3px solid gold; box-shadow:0 6px 20px rgba(0,0,0,0.7); transition:0.3s; }
+#loading { border:8px solid rgba(255,255,255,0.06); border-top:8px solid #ff8c00; border-radius:50%; width:80px; height:80px; animation:spin 1s linear infinite; margin:10px auto; display:none; }
+@keyframes spin{100%{transform:rotate(360deg);} }
+#historyList{ list-style:none; padding:0; margin:0; max-height:220px; overflow-y:auto;}
+#historyList li{ display:flex; gap:8px; align-items:center; margin-bottom:8px; font-size:14px; }
+#historyList li img{ width:48px; height:48px; border-radius:6px; object-fit:cover; }
+#ekwipunekItems{ display:flex; flex-wrap:wrap; gap:8px; margin-top:6px; }
+#ekwipunekItems div{ position:relative; width:92px; height:110px; display:flex; align-items:flex-start; justify-content:center; }
+#ekwipunekItems img{ width:80px; height:80px; object-fit:cover; border-radius:8px; border:2px solid rgba(255,255,255,0.06); display:block; }
+input[type=text]{ padding:6px 10px; border-radius:6px; border:none; margin-right:6px; width:200px; }
+.ekwipunek-tabs { display:flex; gap:6px; margin-bottom:6px; flex-wrap:wrap; }
+.ekwipunek-tab { padding:6px 12px; border-radius:6px; background:rgba(0,212,255,0.3); cursor:pointer; }
+.ekwipunek-tab.active { background:rgba(0,212,255,0.7); font-weight:800; }
+#pageControls { margin-top:6px; display:flex; gap:4px; flex-wrap:wrap; }
+#pageControls button { padding:4px 8px; border:none; border-radius:6px; cursor:pointer; background:rgba(0,212,255,0.3); color:#012; font-weight:700; }
+#pageControls button:hover{ background:rgba(0,212,255,0.7); }
+.shop-category { margin-top:10px; }
+.shop-item { display:flex; gap:10px; align-items:center; margin-bottom:10px; }
+.shop-item img { width:72px; height:72px; object-fit:cover; border-radius:8px; }
+/* Misje */
+#misje { margin-top:12px; background: rgba(255,255,255,0.05); padding:10px; border-radius:8px; }
+#misje h3{ margin-top:0; }
+</style>
+</head>
+<body>
+
+<h1>Czepielowickie Pijaki Witają</h1>
+
+<div id="hud">
+  <div>
+    <div id="punkty">💰 Punkty: 0</div>
+    <div id="godzina">🕒 --:--</div>
+    <div id="profilName">👤 Profil: --</div>
+  </div>
+  <div style="display:flex; gap:6px; flex-wrap:wrap;">
+    <button class="btn" onclick="pokazSekcje('gra')">🎲 Gra</button>
+    <button class="btn" onclick="pokazSekcje('sklep')">🛒 Sklep</button>
+    <button class="btn" onclick="pokazSekcje('ekwipunek')">🎒 Ekwipunek</button>
+    <button class="btn" onclick="pokazSekcje('profil')">👤 Profil</button>
+    <button class="btn" onclick="pokazSekcje('rangi')">🏅 Rangi</button>
+    <button class="btn" onclick="pokazSekcje('dostosuj')">🎨 Dopasuj wygląd</button>
+  </div>
+</div>
+
+<!-- Gra -->
+<div id="gra" class="section hidden">
+  <div style="display:flex; gap:10px; justify-content:center; margin-bottom:12px;">
+    <button class="btn" onclick="pokazSkrzynki()">📦 Skrzynki</button>
+  </div>
+  <div id="skrzynkiSelection" class="hidden" style="display:flex; gap:10px; justify-content:center; margin-bottom:12px;">
+    <button class="btn" onclick="wybierzSkrzynie('postacie')">Skrzynia z postaciami</button>
+    <button class="btn" onclick="wybierzSkrzynie('szlugi')">Skrzynia ze szlugami</button>
+  </div>
+  <div id="crate" class="hidden">
+    <div id="loading"></div>
+    <div id="winner">🎲 Wybierz skrzynię powyżej</div>
+  </div>
+  <div id="losujBtn" class="hidden" style="display:flex; gap:10px; justify-content:center; margin-top:12px;">
+    <button class="btn" onclick="losuj()">Otwórz skrzynkę 🎁</button>
+  </div>
+  <div id="history" style="margin-top:12px;">
+    <h3>Historia:</h3>
+    <ul id="historyList"></ul>
+  </div>
+  <div id="misje">
+    <h3>📜 Misje:</h3>
+    <ul>
+      <li id="misjaBabka">Wylosuj Babkę Wampir 0/3 - Nagroda: 3000 pkt</li>
+      <li id="misjaMocher">Wylosuj Mochera 0/3 - Nagroda: 2500 pkt</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Sklep -->
+<div id="sklep" class="section hidden">
+  <h3>🛒 Sklep</h3>
+  <div class="shop-category"><strong>Wyglądy specjalne</strong></div>
+
+  <div class="shop-item">
+    <img src="https://i.imgur.com/TotBOQy.png" alt="Sklep Figasa">
+    <div>
+      <div style="font-weight:800">Sklep Figasa</div>
+      <div>3 000 000 pkt</div>
+      <div style="margin-top:6px">
+        <button class="btn" onclick="kupWyglad('Sklep Figasa','https://i.imgur.com/TotBOQy.png',3000000)">Kup</button>
+      </div>
+    </div>
+  </div>
+  <div class="shop-item">
+    <img src="https://i.imgur.com/MUny4NP.png" alt="Dom Figasa">
+    <div>
+      <div style="font-weight:800">Dom Figasa</div>
+      <div>5 000 000 pkt</div>
+      <div style="margin-top:6px">
+        <button class="btn" onclick="kupWyglad('Dom Figasa','https://i.imgur.com/MUny4NP.png',5000000)">Kup</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="shop-item">
+    <img src="https://i.imgur.com/eF8VXdr.png" alt="Kościół Mochery">
+    <div>
+      <div style="font-weight:800">Kościół Mochery</div>
+      <div>7 000 000 pkt</div>
+      <div style="margin-top:6px">
+        <button class="btn" onclick="kupWyglad('Kościół Mochery','https://i.imgur.com/eF8VXdr.png',7000000)">Kup</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Ekwipunek -->
+<div id="ekwipunek" class="section hidden">
+  <h3>🎒 Ekwipunek</h3>
+  <div class="ekwipunek-tabs" style="margin-bottom:8px;">
+    <div class="ekwipunek-tab active" id="tabPostacie" onclick="ustawKategorie('postacie')">Postacie</div>
+    <div class="ekwipunek-tab" id="tabSzlugi" onclick="ustawKategorie('szlugi')">Szlugi</div>
+    <div class="ekwipunek-tab" id="tabWyglady" onclick="ustawKategorie('wyglady')">Wyglądy</div>
+  </div>
+  <div class="ekwipunek-tabs" id="subTabs">
+    <div class="ekwipunek-tab active" onclick="pokazSubTab('zwykle')">Zwykłe</div>
+    <div class="ekwipunek-tab" onclick="pokazSubTab('zadkie')">Zadkie</div>
+    <div class="ekwipunek-tab" onclick="pokazSubTab('mega')">Mega Zadkie</div>
+    <div class="ekwipunek-tab" onclick="pokazSubTab('ultra')">Ultra Zadkie</div>
+    <div class="ekwipunek-tab" onclick="pokazSubTab('kupione')">Kupione Przedmioty</div>
+  </div>
+
+  <div id="ekwipunekItems"></div>
+  <div id="pageControls"></div>
+</div>
+
+<!-- Profil -->
+<div id="profil" class="section hidden">
+  <h3>👤 Profil użytkownika</h3>
+  <input type="text" id="inputName" placeholder="Wpisz swoją nazwę">
+  <button class="btn" onclick="zapiszProfil()">Zapisz</button>
+</div>
+
+<!-- Dopasuj wygląd -->
+<div id="dostosuj" class="section hidden">
+  <h3>🎨 Dopasuj wygląd</h3>
+  <div id="dostosujLista"></div>
+</div>
+
+<!-- Rangi -->
+<div id="rangi" class="section hidden">
+  <h3>🏅 Twoja ranga:</h3>
+  <div id="rangaText" style="font-weight:800; font-size:18px;">--</div>
+</div>
+
+<script>
+// ===================== Stan gry =====================
+const MAX_POINTS = 1e18;
+let punkty = parseInt(localStorage.getItem("punkty")) || 0;
+let profil = localStorage.getItem("profil") || "--";
+let ekwipunekPostacie = JSON.parse(localStorage.getItem("ekwipunekPostacie")) || [];
+let ekwipunekSzlugi = JSON.parse(localStorage.getItem("ekwipunekSzlugi")) || [];
+let ekwipunekWyglady = JSON.parse(localStorage.getItem("ekwipunekWyglady")) || [];
+let aktywnaSkrzynia = "";
+let aktywnaKategoria = "postacie";
+let aktywnaSubTab = "zwykle";
+let currentPage = 1;
+const itemsPerPage = 15;
+let misjaBabka = JSON.parse(localStorage.getItem("misjaBabka")) || 0;
+let misjaMocher = JSON.parse(localStorage.getItem("misjaMocher")) || 0;
+let ostatniaNagroda = parseInt(localStorage.getItem("ostatniaNagroda")) || 0;
+
+// ===================== Aktualizacje UI =====================
+function updatePunkty(){
+  if (punkty > MAX_POINTS) punkty = MAX_POINTS;
+  localStorage.setItem("punkty", punkty);
+  document.getElementById("punkty").textContent = "💰 Punkty: " + punkty.toLocaleString();
+}
+updatePunkty();
+
+function updateProfil(){ document.getElementById("profilName").textContent = "👤 Profil: " + profil; }
+updateProfil();
+
+function updateMisje(){
+  document.getElementById("misjaBabka").textContent = `Wylosuj Babkę Wampir ${misjaBabka}/3 - Nagroda: 3000 pkt`;
+  document.getElementById("misjaMocher").textContent = `Wylosuj Mochera ${misjaMocher}/3 - Nagroda: 2500 pkt`;
+}
+updateMisje();
+
+// ===================== Godzina =====================
+function aktualizujGodzine(){ const d=new Date(); const h=d.getHours().toString().padStart(2,"0"); const m=d.getMinutes().toString().padStart(2,"0"); document.getElementById("godzina").textContent="🕒 "+h+":"+m; }
+setInterval(aktualizujGodzine,1000); aktualizujGodzine();
+
+// ===================== Nawigacja =====================
+function pokazSekcje(n){
+  ["gra","sklep","ekwipunek","profil","rangi","dostosuj"].forEach(id=>document.getElementById(id).classList.add("hidden"));
+  document.getElementById(n).classList.remove("hidden");
+  if(n==="ekwipunek") renderEkwipunek();
+  if(n==="dostosuj") renderDostosuj();
+}
+
+// ===================== Skrzynki =====================
+function pokazSkrzynki(){
+  document.getElementById("skrzynkiSelection").classList.remove("hidden");
+  document.getElementById("crate").classList.add("hidden");
+  document.getElementById("losujBtn").classList.add("hidden");
+}
+function wybierzSkrzynie(skrzynia){
+  aktywnaSkrzynia = skrzynia;
+  document.getElementById("skrzynkiSelection").classList.add("hidden");
+  document.getElementById("crate").classList.remove("hidden");
+  document.getElementById("losujBtn").classList.remove("hidden");
+  document.getElementById("winner").innerHTML = "🎲 Kliknij, aby wylosować";
+  document.getElementById("loading").style.display = "none";
+}
+// ===================== Przedmioty =====================
+const postacie = [
+  {imie:"Zygryj",obraz:"https://i.imgur.com/vqiIFOd.jpeg",szansa:20,typ:"zwykle"},
+  {imie:"Bartek Figas",obraz:"https://i.imgur.com/ni7vlaG.jpeg",szansa:10,typ:"zadkie"},
+  {imie:"Zorro",obraz:"https://i.imgur.com/sgJGXfv.jpeg",szansa:10,typ:"zwykle"},
+  {imie:"Krystian",obraz:"https://i.imgur.com/zZLDqBR.jpeg",szansa:15,typ:"zwykle"},
+  {imie:"Bajbus",obraz:"https://i.imgur.com/BVVo8Ss.jpeg",szansa:10,typ:"zwykle"},
+  {imie:"Aśka Figas",obraz:"https://i.imgur.com/XABuJBq.jpeg",szansa:5,typ:"zadkie"},
+  {imie:"Babka Wampir",obraz:"https://i.imgur.com/c1jxjcS.jpeg",szansa:5,typ:"mega"},
+  {imie:"Mocher",obraz:"https://i.imgur.com/J3kheKw.jpeg",szansa:5,typ:"mega"},
+  {imie:"Mellstroy",obraz:"https://i.imgur.com/u1b7Mug.jpeg",szansa:1,typ:"ultra"},
+  {imie:"Palący się menel",obraz:"https://i.imgur.com/W6Kbj20.png",szansa:5,typ:"zadkie"} // NOWA POSTAĆ
+];
+
+const szlugi = [
+  {imie:"Marlboro Gold",obraz:"https://i.imgur.com/gn8NS3q.jpeg",szansa:10,typ:"zadkie"},
+  {imie:"Camel",obraz:"https://i.imgur.com/iYjQF8M.jpeg",szansa:15,typ:"zadkie"},
+  {imie:"Marlboro Red",obraz:"https://i.imgur.com/QmjxUWo.jpeg",szansa:5,typ:"mega"},
+  {imie:"Chapman",obraz:"https://i.imgur.com/q0Yd4EW.jpeg",szansa:7,typ:"mega"},
+  {imie:"Pallmall",obraz:"https://i.imgur.com/Sn03uQA.jpeg",szansa:20,typ:"zadkie"}
+];
+
+// ===================== Losowanie =====================
+function wybierzElement(array){
+  const r = Math.random()*100;
+  let suma = 0;
+  for(const el of array){ suma += el.szansa; if(r<suma) return el; }
+  return array[array.length-1];
+}
+
+function losuj(){
+  if(!aktywnaSkrzynia){ alert("Wybierz skrzynię najpierw."); return; }
+  const lista = aktywnaSkrzynia==="postacie"?postacie:szlugi;
+  const winnerDiv = document.getElementById("winner");
+  const loadingDiv = document.getElementById("loading");
+  loadingDiv.style.display="block"; winnerDiv.innerHTML="";
+  const w = wybierzElement(lista);
+
+  let pkt = 0;
+  if(aktywnaSkrzynia==="postacie"){
+    if(w.typ==="zwykle") pkt=25;
+    else if(w.typ==="zadkie") pkt=50;
+    else if(w.typ==="mega") pkt=500;
+    else if(w.typ==="ultra") pkt=100000;
+  } else {
+    if(w.typ==="zadkie") pkt=125;
+    else if(w.typ==="mega") pkt=250;
+    else pkt=0;
+  }
+
+  setTimeout(()=>{
+    loadingDiv.style.display="none";
+    winnerDiv.innerHTML=`<img src="${w.obraz}" alt="${w.imie}"><br>${w.imie}`;
+    punkty=Math.min(MAX_POINTS,punkty+pkt); updatePunkty();
+
+    const li = document.createElement("li");
+    li.innerHTML=`<img src="${w.obraz}" alt="${w.imie}"><span>${w.imie} (+${pkt} pkt)</span>`;
+    document.getElementById("historyList").insertBefore(li,document.getElementById("historyList").firstChild);
+
+    if(aktywnaSkrzynia==="postacie"){
+      ekwipunekPostacie.unshift({imie:w.imie,obraz:w.obraz,typ:w.typ,kategoria:"postacie"});
+      localStorage.setItem("ekwipunekPostacie",JSON.stringify(ekwipunekPostacie));
+    } else {
+      ekwipunekSzlugi.unshift({imie:w.imie,obraz:w.obraz,typ:w.typ,kategoria:"szlugi"});
+      localStorage.setItem("ekwipunekSzlugi",JSON.stringify(ekwipunekSzlugi));
+    }
+
+    if(w.imie==="Babka Wampir"){ misjaBabka++; if(misjaBabka===3){ punkty=Math.min(MAX_POINTS,punkty+3000); alert("Misja ukończona: 3x Babka Wampir! Otrzymujesz 3000 pkt"); misjaBabka=0; } localStorage.setItem("misjaBabka",misjaBabka); }
+    if(w.imie==="Mocher"){ misjaMocher++; if(misjaMocher===3){ punkty=Math.min(MAX_POINTS,punkty+2500); alert("Misja ukończona: 3x Mocher! Otrzymujesz 2500 pkt"); misjaMocher=0; } localStorage.setItem("misjaMocher",misjaMocher); }
+
+    updateMisje(); renderEkwipunek(); updateRangi();
+  },900);
+}
+
+// ===================== Rejestracja service workera =====================
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('sw.js').then(function(registration) {
+      console.log('ServiceWorker zarejestrowany: ', registration.scope);
+    }, function(err) {
+      console.log('Błąd rejestracji ServiceWorker: ', err);
+    });
+  });
+}
+
+// ===================== Koniec HTML =====================
+</script>
+</body>
+</html>
